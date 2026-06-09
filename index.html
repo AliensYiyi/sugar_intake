@@ -4,10 +4,16 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sugar Tracker</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
   :root {
     --bg: #f7f5f0;
@@ -77,7 +83,8 @@
   }
 
   header h1 span.dot {
-    width: 10px; height: 10px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: var(--accent);
     display: inline-block;
@@ -93,13 +100,20 @@
     background: var(--surface2);
     border: 1px solid var(--border);
     color: var(--text);
-    width: 30px; height: 30px;
+    width: 30px;
+    height: 30px;
     border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 14px;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  .day-nav button:disabled { opacity: 0.3; cursor: default; }
+
+  .day-nav button:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
 
   .day-label {
     font-size: 13px;
@@ -115,7 +129,108 @@
     padding: 1.5rem 1rem 4rem;
   }
 
-  /* Ring */
+  .hidden {
+    display: none !important;
+  }
+
+  .add-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .add-card h2 {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .input-row input[type="text"],
+  .input-row input[type="password"] {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  .input-row input[type="number"] {
+    width: 78px;
+    flex-shrink: 0;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  .input-row input:focus {
+    border-color: var(--accent);
+  }
+
+  .btn-add {
+    padding: 9px 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    flex-shrink: 0;
+  }
+
+  .btn-add:active {
+    opacity: 0.85;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .btn-add {
+      color: #141412;
+    }
+  }
+
+  .user-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .user-email {
+    font-size: 13px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .ring-section {
     display: flex;
     flex-direction: column;
@@ -125,7 +240,8 @@
 
   .ring-wrap {
     position: relative;
-    width: 160px; height: 160px;
+    width: 160px;
+    height: 160px;
   }
 
   .ring-wrap svg {
@@ -161,11 +277,21 @@
     border-radius: 99px;
   }
 
-  .status-ok    { background: var(--green-bg);  color: var(--green); }
-  .status-warn  { background: var(--amber-bg);  color: var(--amber); }
-  .status-over  { background: var(--red-bg);    color: var(--red);   }
+  .status-ok {
+    background: var(--green-bg);
+    color: var(--green);
+  }
 
-  /* Stats row */
+  .status-warn {
+    background: var(--amber-bg);
+    color: var(--amber);
+  }
+
+  .status-over {
+    background: var(--red-bg);
+    color: var(--red);
+  }
+
   .stats-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -192,77 +318,6 @@
     margin-top: 3px;
   }
 
-  /* Add form */
-  .add-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .add-card h2 {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 10px;
-  }
-
-  .input-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  .input-row input[type="text"] {
-    flex: 1;
-    min-width: 0;
-    padding: 9px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface2);
-    color: var(--text);
-    font-size: 14px;
-    font-family: inherit;
-    outline: none;
-  }
-  .input-row input[type="text"]:focus { border-color: var(--accent); }
-
-  .input-row input[type="number"] {
-    width: 78px;
-    flex-shrink: 0;
-    padding: 9px 10px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface2);
-    color: var(--text);
-    font-size: 14px;
-    font-family: inherit;
-    outline: none;
-  }
-  .input-row input[type="number"]:focus { border-color: var(--accent); }
-
-  .btn-add {
-    padding: 9px 16px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    white-space: nowrap;
-    font-family: inherit;
-    flex-shrink: 0;
-  }
-  .btn-add:active { opacity: 0.85; }
-
-  @media (prefers-color-scheme: dark) {
-    .btn-add { color: #141412; }
-  }
-
   .quick-row {
     display: flex;
     flex-wrap: wrap;
@@ -280,9 +335,11 @@
     cursor: pointer;
     font-family: inherit;
   }
-  .quick-btn:active { opacity: 0.7; }
 
-  /* Log */
+  .quick-btn:active {
+    opacity: 0.7;
+  }
+
   .log-header {
     display: flex;
     align-items: center;
@@ -363,20 +420,12 @@
     border-radius: 4px;
     flex-shrink: 0;
   }
-  .log-del:hover { color: var(--red); background: var(--red-bg); }
-  .input-row input[type="password"] {
-   flex: 1;
-   min-width: 0;
-   padding: 9px 12px;
-   border: 1px solid var(--border);
-   border-radius: var(--radius-sm);
-   background: var(--surface2);
-   color: var(--text);
-   font-size: 14px;
-   font-family: inherit;
-   outline: none;
- }
-  /* Toast */
+
+  .log-del:hover {
+    color: var(--red);
+    background: var(--red-bg);
+  }
+
   .toast {
     position: fixed;
     bottom: 24px;
@@ -391,16 +440,21 @@
     transition: transform 0.25s ease;
     z-index: 99;
   }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
 </style>
 </head>
+
 <body>
 
 <header>
   <h1><span class="dot"></span> Sugar Tracker</h1>
-  <div class="day-nav">
+
+  <div class="day-nav" id="day-nav">
     <button id="prev-btn" onclick="changeDay(-1)">&#8592;</button>
-    <span class="day-label" id="day-label"></span>
+    <span class="day-label" id="day-label">Today</span>
     <button id="next-btn" onclick="changeDay(1)">&#8594;</button>
   </div>
 </header>
@@ -421,93 +475,102 @@
     <div class="input-row">
       <button class="btn-add" onclick="signUp()">Sign Up</button>
       <button class="btn-add" onclick="login()">Login</button>
-      <button class="btn-add" onclick="logout()">Logout</button>
     </div>
   </div>
 
-  <div class="ring-section">
-    <div class="ring-wrap">
-      <svg width="160" height="160" viewBox="0 0 160 160">
-        <circle 
-          cx="80" 
-          cy="80" 
-          r="66" 
-          fill="none" 
-          stroke-width="12" 
-          id="ring-bg" 
-          stroke="#e0ddd8"
-        />
+  <div id="user-bar" class="user-bar hidden">
+    <div class="user-email" id="user-email">Logged in</div>
+    <button class="clear-btn" onclick="logout()">Logout</button>
+  </div>
 
-        <circle 
-          cx="80" 
-          cy="80" 
-          r="66" 
-          fill="none" 
-          stroke-width="12" 
-          id="ring-fill"
-          stroke="#639922" 
-          stroke-linecap="round"
-          stroke-dasharray="414.7" 
-          stroke-dashoffset="414.7"
-          style="transition: stroke-dashoffset 0.5s ease, stroke 0.4s ease;"
-        />
-      </svg>
+  <div id="tracker-section" class="hidden">
 
-      <div class="ring-center">
-        <div class="big-num" id="ring-num">0g</div>
-        <div class="sub">of 36g</div>
+    <div class="ring-section">
+      <div class="ring-wrap">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle 
+            cx="80" 
+            cy="80" 
+            r="66" 
+            fill="none" 
+            stroke-width="12" 
+            id="ring-bg" 
+            stroke="#e0ddd8"
+          />
+
+          <circle 
+            cx="80" 
+            cy="80" 
+            r="66" 
+            fill="none" 
+            stroke-width="12" 
+            id="ring-fill"
+            stroke="#639922" 
+            stroke-linecap="round"
+            stroke-dasharray="414.7" 
+            stroke-dashoffset="414.7"
+            style="transition: stroke-dashoffset 0.5s ease, stroke 0.4s ease;"
+          />
+        </svg>
+
+        <div class="ring-center">
+          <div class="big-num" id="ring-num">0g</div>
+          <div class="sub">of 36g</div>
+        </div>
+      </div>
+
+      <div class="ring-status status-ok" id="ring-status">On track</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="val" id="s-consumed" style="color:var(--green)">0g</div>
+        <div class="lbl">Consumed</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="val" id="s-remaining">36g</div>
+        <div class="lbl">Remaining</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="val" id="s-pct">0%</div>
+        <div class="lbl">of limit</div>
       </div>
     </div>
 
-    <div class="ring-status status-ok" id="ring-status">On track</div>
+    <div class="add-card">
+      <h2>Add food</h2>
+
+      <div class="input-row">
+        <input type="text" id="fname" placeholder="Food or drink name" />
+        <input type="number" id="fsugar" placeholder="g" min="0" step="0.1" />
+        <button class="btn-add" onclick="addEntry()">Add</button>
+      </div>
+
+      <div class="quick-row">
+        <button class="quick-btn" onclick="quickAdd('Teaspoon of sugar', 4)">+4g spoon</button>
+        <button class="quick-btn" onclick="quickAdd('Can of soda', 39)">+39g soda</button>
+        <button class="quick-btn" onclick="quickAdd('Fruit yogurt', 12)">+12g yogurt</button>
+        <button class="quick-btn" onclick="quickAdd('Energy drink', 27)">+27g energy drink</button>
+        <button class="quick-btn" onclick="quickAdd('Chocolate bar', 22)">+22g chocolate</button>
+        <button class="quick-btn" onclick="quickAdd('Orange juice (250ml)', 21)">+21g OJ</button>
+      </div>
+    </div>
+
+    <div class="log-header">
+      <h2>Today's log</h2>
+      <button class="clear-btn" onclick="clearDay()">Clear day</button>
+    </div>
+
+    <div id="log-list"></div>
+
   </div>
-
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="val" id="s-consumed" style="color:var(--green)">0g</div>
-      <div class="lbl">Consumed</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="val" id="s-remaining">36g</div>
-      <div class="lbl">Remaining</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="val" id="s-pct">0%</div>
-      <div class="lbl">of limit</div>
-    </div>
-  </div>
-
-  <div class="add-card">
-    <h2>Add food</h2>
-
-    <div class="input-row">
-      <input type="text" id="fname" placeholder="Food or drink name" />
-      <input type="number" id="fsugar" placeholder="g" min="0" step="0.1" />
-      <button class="btn-add" onclick="addEntry()">Add</button>
-    </div>
-
-    <div class="quick-row">
-      <button class="quick-btn" onclick="quickAdd('Teaspoon of sugar', 4)">+4g spoon</button>
-      <button class="quick-btn" onclick="quickAdd('Can of soda', 39)">+39g soda</button>
-      <button class="quick-btn" onclick="quickAdd('Fruit yogurt', 12)">+12g yogurt</button>
-      <button class="quick-btn" onclick="quickAdd('Energy drink', 27)">+27g energy drink</button>
-      <button class="quick-btn" onclick="quickAdd('Chocolate bar', 22)">+22g chocolate</button>
-      <button class="quick-btn" onclick="quickAdd('Orange juice (250ml)', 21)">+21g OJ</button>
-    </div>
-  </div>
-
-  <div class="log-header">
-    <h2>Today's log</h2>
-    <button class="clear-btn" onclick="clearDay()">Clear day</button>
-  </div>
-
-  <div id="log-list"></div>
 
 </main>
 
 <div class="toast" id="toast"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -587,6 +650,7 @@
     }
 
     showToast('Account created. You can login now.');
+    await render();
   }
 
   async function login() {
@@ -609,12 +673,18 @@
       return;
     }
 
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+
     showToast('Logged in');
     await render();
   }
 
   async function logout() {
     await supabaseClient.auth.signOut();
+
+    offset = 0;
+
     showToast('Logged out');
     await render();
   }
@@ -662,6 +732,7 @@
 
     if (!user) {
       showToast('Please login first');
+      await render();
       return;
     }
 
@@ -693,6 +764,7 @@
 
     if (!user) {
       showToast('Please login first');
+      await render();
       return;
     }
 
@@ -721,6 +793,7 @@
 
     if (!user) {
       showToast('Please login first');
+      await render();
       return;
     }
 
@@ -746,6 +819,7 @@
 
     if (!user) {
       showToast('Please login first');
+      await render();
       return;
     }
 
@@ -766,14 +840,35 @@
 
   async function render() {
     const user = await getCurrentUser();
+
+    const authCard = document.getElementById('auth-card');
+    const trackerSection = document.getElementById('tracker-section');
+    const userBar = document.getElementById('user-bar');
+    const userEmail = document.getElementById('user-email');
+    const dayNav = document.getElementById('day-nav');
+
+    document.getElementById('day-label').textContent = friendlyLabel(offset);
+    document.getElementById('next-btn').disabled = offset >= 0;
+
+    if (!user) {
+      authCard.classList.remove('hidden');
+      trackerSection.classList.add('hidden');
+      userBar.classList.add('hidden');
+      dayNav.classList.add('hidden');
+      return;
+    }
+
+    authCard.classList.add('hidden');
+    trackerSection.classList.remove('hidden');
+    userBar.classList.remove('hidden');
+    dayNav.classList.remove('hidden');
+    userEmail.textContent = user.email || 'Logged in';
+
     const entries = await loadDay(offset);
 
     const total = entries.reduce((s, e) => s + Number(e.sugar), 0);
     const remaining = Math.max(0, LIMIT - total);
     const pct = Math.min(100, Math.round((total / LIMIT) * 100));
-
-    document.getElementById('day-label').textContent = friendlyLabel(offset);
-    document.getElementById('next-btn').disabled = offset >= 0;
 
     document.getElementById('ring-num').textContent = total.toFixed(1) + 'g';
     document.getElementById('s-consumed').textContent = total.toFixed(1) + 'g';
@@ -806,11 +901,6 @@
 
     const list = document.getElementById('log-list');
 
-    if (!user) {
-      list.innerHTML = '<div class="log-empty">Please login first.<br>Your sugar log will appear here.</div>';
-      return;
-    }
-
     if (entries.length === 0) {
       list.innerHTML = '<div class="log-empty">No entries for this day.<br>Add something above.</div>';
     } else {
@@ -835,28 +925,31 @@
     t.classList.add('show');
 
     clearTimeout(toastTimer);
+
     toastTimer = setTimeout(() => {
       t.classList.remove('show');
     }, 2200);
   }
 
-  document.getElementById('fname').addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      document.getElementById('fsugar').focus();
-    }
-  });
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('fname').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        document.getElementById('fsugar').focus();
+      }
+    });
 
-  document.getElementById('fsugar').addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      addEntry();
-    }
-  });
+    document.getElementById('fsugar').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        addEntry();
+      }
+    });
 
-  supabaseClient.auth.onAuthStateChange(() => {
+    supabaseClient.auth.onAuthStateChange(() => {
+      render();
+    });
+
     render();
   });
-
-  render();
 </script>
 
 </body>
