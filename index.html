@@ -364,7 +364,18 @@
     flex-shrink: 0;
   }
   .log-del:hover { color: var(--red); background: var(--red-bg); }
-
+  .input-row input[type="password"] {
+   flex: 1;
+   min-width: 0;
+   padding: 9px 12px;
+   border: 1px solid var(--border);
+   border-radius: var(--radius-sm);
+   background: var(--surface2);
+   color: var(--text);
+   font-size: 14px;
+   font-family: inherit;
+   outline: none;
+ }
   /* Toast */
   .toast {
     position: fixed;
@@ -395,6 +406,18 @@
 </header>
 
 <main>
+   <div class="add-card" id="auth-card">
+    <h2>Login</h2>
+    <div class="input-row">
+      <input type="text" id="email" placeholder="Email" />
+    </div>
+    <div class="input-row">
+      <input type="password" id="password" placeholder="Password" />
+    </div>
+    <button class="btn-add" onclick="signUp()">Sign Up</button>
+    <button class="btn-add" onclick="login()">Login</button>
+    <button class="clear-btn" onclick="logout()">Logout</button>
+  </div>
   <div class="ring-section">
     <div class="ring-wrap">
       <svg width="160" height="160" viewBox="0 0 160 160">
@@ -452,11 +475,17 @@
 </main>
 
 <div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
   const LIMIT = 36;
   const CIRC = 2 * Math.PI * 66;
   let offset = 0;
+
+  const SUPABASE_URL = "https://pzpqjskucaiovqqjskpw.supabase.co";
+  const SUPABASE_KEY = "PASTE_YOUR_SB_PUBLISHABLE_KEY_HERE";
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   function dateKey(off) {
     const d = new Date();
@@ -467,66 +496,246 @@
   function friendlyLabel(off) {
     if (off === 0) return 'Today';
     if (off === -1) return 'Yesterday';
+
     const d = new Date();
     d.setDate(d.getDate() + off);
-    return d.toLocaleDateString('en-MY', { weekday: 'short', month: 'short', day: 'numeric' });
+
+    return d.toLocaleDateString('en-MY', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
   }
 
   function nowTime() {
-    return new Date().toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' });
+    return new Date().toLocaleTimeString('en-MY', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 
-  function loadDay(off) {
-    try { return JSON.parse(localStorage.getItem('sg_' + dateKey(off)) || '[]'); }
-    catch { return []; }
+  function escapeHTML(text) {
+    return String(text)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
   }
 
-  function saveDay(off, entries) {
-    localStorage.setItem('sg_' + dateKey(off), JSON.stringify(entries));
+  async function getCurrentUser() {
+    const { data, error } = await supabaseClient.auth.getUser();
+
+    if (error || !data.user) {
+      return null;
+    }
+
+    return data.user;
   }
 
-  function changeDay(delta) {
+  async function signUp() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+      showToast('Enter email and password');
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signUp({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      console.error(error);
+      showToast(error.message);
+      return;
+    }
+
+    showToast('Account created. You can login now.');
+  }
+
+  async function login() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+      showToast('Enter email and password');
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      console.error(error);
+      showToast(error.message);
+      return;
+    }
+
+    showToast('Logged in');
+    await render();
+  }
+
+  async function logout() {
+    await supabaseClient.auth.signOut();
+    showToast('Logged out');
+    await render();
+  }
+
+  async function loadDay(off) {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return [];
+    }
+
+    const { data, error } = await supabaseClient
+      .from('sugar_entries')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('entry_date', dateKey(off))
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to load data');
+      return [];
+    }
+
+    return data || [];
+  }
+
+  async function changeDay(delta) {
     if (offset + delta > 0) return;
+
     offset += delta;
-    render();
+    await render();
   }
 
-  function addEntry() {
+  async function addEntry() {
     const name = document.getElementById('fname').value.trim();
     const sugar = parseFloat(document.getElementById('fsugar').value);
-    if (!name || isNaN(sugar) || sugar < 0) { showToast('Enter a name and amount'); return; }
-    const entries = loadDay(offset);
-    entries.push({ id: Date.now(), name, sugar, time: nowTime() });
-    saveDay(offset, entries);
+
+    if (!name || isNaN(sugar) || sugar < 0) {
+      showToast('Enter a name and amount');
+      return;
+    }
+
+    const user = await getCurrentUser();
+
+    if (!user) {
+      showToast('Please login first');
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from('sugar_entries')
+      .insert({
+        user_id: user.id,
+        entry_date: dateKey(offset),
+        name: name,
+        sugar: sugar,
+        time: nowTime()
+      });
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to add');
+      return;
+    }
+
     document.getElementById('fname').value = '';
     document.getElementById('fsugar').value = '';
-    render();
+
+    await render();
     showToast('Added ' + name);
   }
 
-  function quickAdd(name, sugar) {
-    const entries = loadDay(offset);
-    entries.push({ id: Date.now(), name, sugar, time: nowTime() });
-    saveDay(offset, entries);
-    render();
+  async function quickAdd(name, sugar) {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      showToast('Please login first');
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from('sugar_entries')
+      .insert({
+        user_id: user.id,
+        entry_date: dateKey(offset),
+        name: name,
+        sugar: sugar,
+        time: nowTime()
+      });
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to add');
+      return;
+    }
+
+    await render();
     showToast('Added ' + name);
   }
 
-  function removeEntry(id) {
-    const entries = loadDay(offset).filter(e => e.id !== id);
-    saveDay(offset, entries);
-    render();
+  async function removeEntry(id) {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      showToast('Please login first');
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from('sugar_entries')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to delete');
+      return;
+    }
+
+    await render();
   }
 
-  function clearDay() {
+  async function clearDay() {
     if (!confirm('Clear all entries for ' + friendlyLabel(offset) + '?')) return;
-    saveDay(offset, []);
-    render();
+
+    const user = await getCurrentUser();
+
+    if (!user) {
+      showToast('Please login first');
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from('sugar_entries')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('entry_date', dateKey(offset));
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to clear day');
+      return;
+    }
+
+    await render();
   }
 
-  function render() {
-    const entries = loadDay(offset);
-    const total = entries.reduce((s, e) => s + e.sugar, 0);
+  async function render() {
+    const user = await getCurrentUser();
+    const entries = await loadDay(offset);
+
+    const total = entries.reduce((s, e) => s + Number(e.sugar), 0);
     const remaining = Math.max(0, LIMIT - total);
     const pct = Math.min(100, Math.round((total / LIMIT) * 100));
 
@@ -563,38 +772,59 @@
     }
 
     const list = document.getElementById('log-list');
+
+    if (!user) {
+      list.innerHTML = '<div class="log-empty">Please login first.<br>Your sugar log will appear here.</div>';
+      return;
+    }
+
     if (entries.length === 0) {
       list.innerHTML = '<div class="log-empty">No entries for this day.<br>Add something above.</div>';
     } else {
       list.innerHTML = [...entries].reverse().map(e => `
         <div class="log-item">
           <div style="flex:1;min-width:0;">
-            <div class="log-name">${e.name}</div>
-            <div class="log-time">${e.time || ''}</div>
+            <div class="log-name">${escapeHTML(e.name)}</div>
+            <div class="log-time">${escapeHTML(e.time || '')}</div>
           </div>
           <div class="log-g">${parseFloat(e.sugar).toFixed(1)}g</div>
           <button class="log-del" onclick="removeEntry(${e.id})" aria-label="Remove">&#x2715;</button>
-        </div>`).join('');
+        </div>
+      `).join('');
     }
   }
 
   let toastTimer;
+
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.classList.add('show');
+
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    toastTimer = setTimeout(() => {
+      t.classList.remove('show');
+    }, 2200);
   }
 
   document.getElementById('fname').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('fsugar').focus();
+    if (e.key === 'Enter') {
+      document.getElementById('fsugar').focus();
+    }
   });
+
   document.getElementById('fsugar').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addEntry();
+    if (e.key === 'Enter') {
+      addEntry();
+    }
+  });
+
+  supabaseClient.auth.onAuthStateChange(() => {
+    render();
   });
 
   render();
 </script>
+
 </body>
 </html>
