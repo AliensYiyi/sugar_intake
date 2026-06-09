@@ -406,32 +406,59 @@
 </header>
 
 <main>
-   <div class="add-card" id="auth-card">
+
+  <div class="add-card" id="auth-card">
     <h2>Login</h2>
+
     <div class="input-row">
       <input type="text" id="email" placeholder="Email" />
     </div>
+
     <div class="input-row">
       <input type="password" id="password" placeholder="Password" />
     </div>
-    <button class="btn-add" onclick="signUp()">Sign Up</button>
-    <button class="btn-add" onclick="login()">Login</button>
-    <button class="clear-btn" onclick="logout()">Logout</button>
+
+    <div class="input-row">
+      <button class="btn-add" onclick="signUp()">Sign Up</button>
+      <button class="btn-add" onclick="login()">Login</button>
+      <button class="btn-add" onclick="logout()">Logout</button>
+    </div>
   </div>
+
   <div class="ring-section">
     <div class="ring-wrap">
       <svg width="160" height="160" viewBox="0 0 160 160">
-        <circle cx="80" cy="80" r="66" fill="none" stroke-width="12" id="ring-bg" stroke="#e0ddd8"/>
-        <circle cx="80" cy="80" r="66" fill="none" stroke-width="12" id="ring-fill"
-          stroke="#639922" stroke-linecap="round"
-          stroke-dasharray="414.7" stroke-dashoffset="414.7"
-          style="transition: stroke-dashoffset 0.5s ease, stroke 0.4s ease;"/>
+        <circle 
+          cx="80" 
+          cy="80" 
+          r="66" 
+          fill="none" 
+          stroke-width="12" 
+          id="ring-bg" 
+          stroke="#e0ddd8"
+        />
+
+        <circle 
+          cx="80" 
+          cy="80" 
+          r="66" 
+          fill="none" 
+          stroke-width="12" 
+          id="ring-fill"
+          stroke="#639922" 
+          stroke-linecap="round"
+          stroke-dasharray="414.7" 
+          stroke-dashoffset="414.7"
+          style="transition: stroke-dashoffset 0.5s ease, stroke 0.4s ease;"
+        />
       </svg>
+
       <div class="ring-center">
         <div class="big-num" id="ring-num">0g</div>
         <div class="sub">of 36g</div>
       </div>
     </div>
+
     <div class="ring-status status-ok" id="ring-status">On track</div>
   </div>
 
@@ -440,10 +467,12 @@
       <div class="val" id="s-consumed" style="color:var(--green)">0g</div>
       <div class="lbl">Consumed</div>
     </div>
+
     <div class="stat-card">
       <div class="val" id="s-remaining">36g</div>
       <div class="lbl">Remaining</div>
     </div>
+
     <div class="stat-card">
       <div class="val" id="s-pct">0%</div>
       <div class="lbl">of limit</div>
@@ -452,11 +481,13 @@
 
   <div class="add-card">
     <h2>Add food</h2>
+
     <div class="input-row">
       <input type="text" id="fname" placeholder="Food or drink name" />
       <input type="number" id="fsugar" placeholder="g" min="0" step="0.1" />
       <button class="btn-add" onclick="addEntry()">Add</button>
     </div>
+
     <div class="quick-row">
       <button class="quick-btn" onclick="quickAdd('Teaspoon of sugar', 4)">+4g spoon</button>
       <button class="quick-btn" onclick="quickAdd('Can of soda', 39)">+39g soda</button>
@@ -471,7 +502,9 @@
     <h2>Today's log</h2>
     <button class="clear-btn" onclick="clearDay()">Clear day</button>
   </div>
+
   <div id="log-list"></div>
+
 </main>
 
 <div class="toast" id="toast"></div>
