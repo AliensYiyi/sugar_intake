@@ -149,6 +149,13 @@
     margin-bottom: 10px;
   }
 
+  .card-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
   .input-row {
     display: flex;
     gap: 8px;
@@ -241,6 +248,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .user-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
   }
 
   .ring-section {
@@ -498,19 +512,33 @@
 
   <div id="user-bar" class="user-bar hidden">
     <div class="user-email" id="user-email">Logged in</div>
-    <button class="clear-btn" onclick="logout()">Logout</button>
+
+    <div class="user-actions">
+      <button class="clear-btn" onclick="openTargetPage()">Edit Target</button>
+      <button class="clear-btn" onclick="logout()">Logout</button>
+    </div>
   </div>
 
-  <div id="tracker-section" class="hidden">
-
+  <div id="target-page" class="hidden">
     <div class="add-card">
-      <h2>Daily Target</h2>
+      <h2>Set Daily Sugar Target</h2>
+
+      <p class="card-text">
+        Set your own daily sugar limit. This target will be saved to your account.
+      </p>
 
       <div class="input-row">
         <input type="number" id="target-limit" placeholder="Target g" min="1" step="1" />
         <button class="btn-add" onclick="saveTarget()">Save</button>
       </div>
+
+      <button class="btn-secondary" onclick="closeTargetPage()">
+        Back to Tracker
+      </button>
     </div>
+  </div>
+
+  <div id="tracker-section" class="hidden">
 
     <div class="ring-section">
       <div class="ring-wrap">
@@ -604,15 +632,26 @@
   let LIMIT = 36;
   const CIRC = 2 * Math.PI * 66;
   let offset = 0;
+  let targetMode = false;
 
   const SUPABASE_URL = "https://pzpqiskucaiovqqjskpw.supabase.co";
   const SUPABASE_KEY = "sb_publishable_VYpWexwTz7urWMh0jz2J0A_P2L4XKUF";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  function getMalaysiaDate(off = 0) {
+    const nowMY = new Date(
+      new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Kuala_Lumpur'
+      })
+    );
+
+    nowMY.setDate(nowMY.getDate() + off);
+    return nowMY;
+  }
+
   function dateKey(off) {
-    const d = new Date();
-    d.setDate(d.getDate() + off);
+    const d = getMalaysiaDate(off);
 
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -625,8 +664,7 @@
     if (off === 0) return 'Today';
     if (off === -1) return 'Yesterday';
 
-    const d = new Date();
-    d.setDate(d.getDate() + off);
+    const d = getMalaysiaDate(off);
 
     return d.toLocaleDateString('en-MY', {
       weekday: 'short',
@@ -637,6 +675,7 @@
 
   function nowTime() {
     return new Date().toLocaleTimeString('en-MY', {
+      timeZone: 'Asia/Kuala_Lumpur',
       hour: '2-digit',
       minute: '2-digit'
     });
@@ -708,6 +747,8 @@
     document.getElementById('email').value = '';
     document.getElementById('password').value = '';
 
+    targetMode = false;
+
     showToast('Logged in');
     await render();
   }
@@ -717,9 +758,20 @@
 
     offset = 0;
     LIMIT = 36;
+    targetMode = false;
 
     showToast('Logged out');
     await render();
+  }
+
+  function openTargetPage() {
+    targetMode = true;
+    render();
+  }
+
+  function closeTargetPage() {
+    targetMode = false;
+    render();
   }
 
   async function loadTarget() {
@@ -780,6 +832,7 @@
     }
 
     LIMIT = newLimit;
+    targetMode = false;
 
     showToast('Target saved');
     await render();
@@ -939,6 +992,7 @@
 
     const authCard = document.getElementById('auth-card');
     const trackerSection = document.getElementById('tracker-section');
+    const targetPage = document.getElementById('target-page');
     const userBar = document.getElementById('user-bar');
     const userEmail = document.getElementById('user-email');
     const dayNav = document.getElementById('day-nav');
@@ -949,18 +1003,28 @@
     if (!user) {
       authCard.classList.remove('hidden');
       trackerSection.classList.add('hidden');
+      targetPage.classList.add('hidden');
       userBar.classList.add('hidden');
       dayNav.classList.add('hidden');
       return;
     }
 
     authCard.classList.add('hidden');
-    trackerSection.classList.remove('hidden');
     userBar.classList.remove('hidden');
-    dayNav.classList.remove('hidden');
     userEmail.textContent = user.email || 'Logged in';
 
     await loadTarget();
+
+    if (targetMode) {
+      trackerSection.classList.add('hidden');
+      targetPage.classList.remove('hidden');
+      dayNav.classList.add('hidden');
+      return;
+    }
+
+    trackerSection.classList.remove('hidden');
+    targetPage.classList.add('hidden');
+    dayNav.classList.remove('hidden');
 
     const entries = await loadDay(offset);
 
@@ -1046,6 +1110,12 @@
     supabaseClient.auth.onAuthStateChange(() => {
       render();
     });
+
+    setInterval(() => {
+      if (offset === 0 && !targetMode) {
+        render();
+      }
+    }, 60000);
 
     render();
   });
