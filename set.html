@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sugar Tracker</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --surface2: #f0ede7;
+    --border: rgba(0,0,0,0.08);
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --hint: #a0a0a0;
+    --green: #3B6D11;
+    --green-bg: #EAF3DE;
+    --amber: #854F0B;
+    --amber-bg: #FAEEDA;
+    --red: #A32D2D;
+    --red-bg: #FCEBEB;
+    --accent: #3B6D11;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141412;
+      --surface: #1e1d1b;
+      --surface2: #272522;
+      --border: rgba(255,255,255,0.08);
+      --text: #f0ede7;
+      --muted: #a0a0a0;
+      --hint: #666;
+      --green: #97C459;
+      --green-bg: #173404;
+      --amber: #FAC775;
+      --amber-bg: #412402;
+      --red: #F09595;
+      --red-bg: #501313;
+      --accent: #97C459;
+    }
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header h1 {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  header h1 span.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .day-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .day-nav button {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .day-nav button:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .day-label {
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 72px;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .add-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .add-card h2 {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .input-row input[type="text"],
+  .input-row input[type="password"] {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  .input-row input[type="number"] {
+    width: 100px;
+    flex-shrink: 0;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  .input-row input:focus {
+    border-color: var(--accent);
+  }
+
+  .btn-add {
+    padding: 9px 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    flex-shrink: 0;
+  }
+
+  .btn-add:active {
+    opacity: 0.85;
+  }
+
+  .btn-secondary {
+    width: 100%;
+    padding: 9px 16px;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .btn-add {
+      color: #141412;
+    }
+  }
+
+  .user-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .user-email {
+    font-size: 13px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ring-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1.5rem 0 2rem;
+  }
+
+  .ring-wrap {
+    position: relative;
+    width: 160px;
+    height: 160px;
+  }
+
+  .ring-wrap svg {
+    transform: rotate(-90deg);
+  }
+
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ring-center .big-num {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .ring-center .sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .ring-status {
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 14px;
+    border-radius: 99px;
+  }
+
+  .status-ok {
+    background: var(--green-bg);
+    color: var(--green);
+  }
+
+  .status-warn {
+    background: var(--amber-bg);
+    color: var(--amber);
+  }
+
+  .status-over {
+    background: var(--red-bg);
+    color: var(--red);
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    text-align: center;
+  }
+
+  .stat-card .val {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .stat-card .lbl {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .quick-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .quick-btn {
+    padding: 5px 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .quick-btn:active {
+    opacity: 0.7;
+  }
+
+  .log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .log-header h2 {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .clear-btn {
+    font-size: 12px;
+    color: var(--red);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 2px 0;
+  }
+
+  .log-empty {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    color: var(--hint);
+    font-size: 14px;
+  }
+
+  .log-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .log-name {
+    font-size: 14px;
+    font-weight: 500;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .log-time {
+    font-size: 11px;
+    color: var(--hint);
+  }
+
+  .log-g {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .log-del {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--hint);
+    font-size: 16px;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .log-del:hover {
+    color: var(--red);
+    background: var(--red-bg);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: var(--bg);
+    font-size: 13px;
+    padding: 8px 18px;
+    border-radius: 99px;
+    pointer-events: none;
+    transition: transform 0.25s ease;
+    z-index: 99;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1><span class="dot"></span> Sugar Tracker</h1>
+
+  <div class="day-nav" id="day-nav">
+    <button id="prev-btn" onclick="changeDay(-1)">&#8592;</button>
+    <span class="day-label" id="day-label">Today</span>
+    <button id="next-btn" onclick="changeDay(1)">&#8594;</button>
+  </div>
+</header>
+
+<main>
+
+  <div class="add-card" id="auth-card">
+    <h2>Login</h2>
+
+    <div class="input-row">
+      <input type="text" id="email" placeholder="Email" />
+    </div>
+
+    <div class="input-row">
+      <input type="password" id="password" placeholder="Password" />
+    </div>
+
+    <div class="input-row">
+      <button class="btn-add" onclick="signUp()">Sign Up</button>
+      <button class="btn-add" onclick="login()">Login</button>
+    </div>
+
+    <div class="input-row">
+      <button class="btn-secondary" onclick="window.location.href='tracker.php'">
+        Continue without login
+      </button>
+    </div>
+  </div>
+
+  <div id="user-bar" class="user-bar hidden">
+    <div class="user-email" id="user-email">Logged in</div>
+    <button class="clear-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div id="tracker-section" class="hidden">
+
+    <div class="add-card">
+      <h2>Daily Target</h2>
+
+      <div class="input-row">
+        <input type="number" id="target-limit" placeholder="Target g" min="1" step="1" />
+        <button class="btn-add" onclick="saveTarget()">Save</button>
+      </div>
+    </div>
+
+    <div class="ring-section">
+      <div class="ring-wrap">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle 
+            cx="80" 
+            cy="80" 
+            r="66" 
+            fill="none" 
+            stroke-width="12" 
+            id="ring-bg" 
+            stroke="#e0ddd8"
+          />
+
+          <circle 
+            cx="80" 
+            cy="80" 
+            r="66" 
+            fill="none" 
+            stroke-width="12" 
+            id="ring-fill"
+            stroke="#639922" 
+            stroke-linecap="round"
+            stroke-dasharray="414.7" 
+            stroke-dashoffset="414.7"
+            style="transition: stroke-dashoffset 0.5s ease, stroke 0.4s ease;"
+          />
+        </svg>
+
+        <div class="ring-center">
+          <div class="big-num" id="ring-num">0g</div>
+          <div class="sub" id="target-sub">of 36g</div>
+        </div>
+      </div>
+
+      <div class="ring-status status-ok" id="ring-status">On track</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="val" id="s-consumed" style="color:var(--green)">0g</div>
+        <div class="lbl">Consumed</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="val" id="s-remaining">36g</div>
+        <div class="lbl">Remaining</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="val" id="s-pct">0%</div>
+        <div class="lbl">of limit</div>
+      </div>
+    </div>
+
+    <div class="add-card">
+      <h2>Add food</h2>
+
+      <div class="input-row">
+        <input type="text" id="fname" placeholder="Food or drink name" />
+        <input type="number" id="fsugar" placeholder="g" min="0" step="0.1" />
+        <button class="btn-add" onclick="addEntry()">Add</button>
+      </div>
+
+      <div class="quick-row">
+        <button class="quick-btn" onclick="quickAdd('Teaspoon of sugar', 4)">+4g spoon</button>
+        <button class="quick-btn" onclick="quickAdd('Can of soda', 39)">+39g soda</button>
+        <button class="quick-btn" onclick="quickAdd('Fruit yogurt', 12)">+12g yogurt</button>
+        <button class="quick-btn" onclick="quickAdd('Energy drink', 27)">+27g energy drink</button>
+        <button class="quick-btn" onclick="quickAdd('Chocolate bar', 22)">+22g chocolate</button>
+        <button class="quick-btn" onclick="quickAdd('Orange juice (250ml)', 21)">+21g OJ</button>
+      </div>
+    </div>
+
+    <div class="log-header">
+      <h2>Today's log</h2>
+      <button class="clear-btn" onclick="clearDay()">Clear day</button>
+    </div>
+
+    <div id="log-list"></div>
+
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  let LIMIT = 36;
+  const CIRC = 2 * Math.PI * 66;
+  let offset = 0;
+
+  const SUPABASE_URL = "https://pzpqjskucaiovqqjskpw.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_VYpWexwTz7urWMh0jz2J0A_P2L4XKUF";
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  function dateKey(off) {
+    const d = new Date();
+    d.setDate(d.getDate() + off);
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
+  function friendlyLabel(off) {
+    if (off === 0) return 'Today';
+    if (off === -1) return 'Yesterday';
+
+    const d = new Date();
+    d.setDate(d.getDate() + off);
+
+    return d.toLocaleDateString('en-MY', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  function nowTime() {
+    return new Date().toLocaleTimeString('en-MY', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function escapeHTML(text) {
+    return String(text)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  async function getCurrentUser() {
+    const { data, error } = await supabaseClient.auth.getUser();
+
+    if (error || !data.user) {
+      return null;
+    }
+
+    return data.user;
+  }
+
+  async function signUp() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+      showToast('Enter email and password');
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signUp({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      console.error(error);
+      showToast(error.message);
+      return;
+    }
+
+    showToast('Account created. You can login now.');
+    await render();
+  }
+
+  async function login() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+      showToast('Enter email and password');
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      console.error(error);
+      showToast(error.message);
+      return;
+    }
+
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+
+    showToast('Logged in');
+    await render();
+  }
+
+  async function logout() {
+    await supabaseClient.auth.signOut();
+
+    offset = 0;
+    LIMIT = 36;
+
+    showToast('Logged out');
+    await render();
+  }
+
+  async function loadTarget() {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      LIMIT = 36;
+      return;
+    }
+
+    const { data, error } = await supabaseClient
+      .from('user_settings')
+      .select('sugar_limit')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error(error);
+      LIMIT = 36;
+    } else if (data && data.sugar_limit) {
+      LIMIT = Number(data.sugar_limit);
+    } else {
+      LIMIT = 36;
+    }
+
+    document.getElementById('target-limit').value = LIMIT;
+    document.getElementById('target-sub').textContent = 'of ' + LIMIT + 'g';
+  }
+
+  async function saveTarget() {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      showToast('Please login first');
+      await render();
+      return;
+    }
+
+    const newLimit = Number(document.getElementById('target-limit').value);
+
+    if (!newLimit || newLimit <= 0) {
+      showToast('Enter valid target');
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from('user_settings')
+      .upsert({
+        user_id: user.id,
+        sugar_limit: newLimit,
+        updated_at: new Date().toISOString()
+      });
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to save target');
+      return;
+    }
+
+    LIMIT = newLimit;
+
+    showToast('Target saved');
+    await render();
+  }
+
+  async function loadDay(off) {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return [];
+    }
+
+    const { data, error } = await supabaseClient
+      .from('sugar_entries')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('entry_date', dateKey(off))
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to load data');
+      return [];
+    }
+
+    return data || [];
+  }
+
+  async function changeDay(delta) {
+    if (offset + delta > 0) return;
+
+    offset += delta;
+    await render();
+  }
+
+  async function addEntry() {
+    const name = document.getElementById('fname').value.trim();
+    const sugar = parseFloat(document.getElementById('fsugar').value);
+
+    if (!name || isNaN(sugar) || sugar < 0) {
+      showToast('Enter a name and amount');
+      return;
+    }
+
+    const user = await getCurrentUser();
+
+    if (!user) {
+      showToast('Please login first');
+      await render();
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from('sugar_entries')
+      .insert({
+        user_id: user.id,
+        entry_date: dateKey(offset),
+        name: name,
+        sugar: sugar,
+        time: nowTime()
+      });
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to add');
+      return;
+    }
+
+    document.getElementById('fname').value = '';
+    document.getElementById('fsugar').value = '';
+
+    await render();
+    showToast('Added ' + name);
+  }
+
+  async function quickAdd(name, sugar) {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      showToast('Please login first');
+      await render();
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from('sugar_entries')
+      .insert({
+        user_id: user.id,
+        entry_date: dateKey(offset),
+        name: name,
+        sugar: sugar,
+        time: nowTime()
+      });
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to add');
+      return;
+    }
+
+    await render();
+    showToast('Added ' + name);
+  }
+
+  async function removeEntry(id) {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      showToast('Please login first');
+      await render();
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from('sugar_entries')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to delete');
+      return;
+    }
+
+    await render();
+  }
+
+  async function clearDay() {
+    if (!confirm('Clear all entries for ' + friendlyLabel(offset) + '?')) return;
+
+    const user = await getCurrentUser();
+
+    if (!user) {
+      showToast('Please login first');
+      await render();
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from('sugar_entries')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('entry_date', dateKey(offset));
+
+    if (error) {
+      console.error(error);
+      showToast('Failed to clear day');
+      return;
+    }
+
+    await render();
+  }
+
+  async function render() {
+    const user = await getCurrentUser();
+
+    const authCard = document.getElementById('auth-card');
+    const trackerSection = document.getElementById('tracker-section');
+    const userBar = document.getElementById('user-bar');
+    const userEmail = document.getElementById('user-email');
+    const dayNav = document.getElementById('day-nav');
+
+    document.getElementById('day-label').textContent = friendlyLabel(offset);
+    document.getElementById('next-btn').disabled = offset >= 0;
+
+    if (!user) {
+      authCard.classList.remove('hidden');
+      trackerSection.classList.add('hidden');
+      userBar.classList.add('hidden');
+      dayNav.classList.add('hidden');
+      return;
+    }
+
+    authCard.classList.add('hidden');
+    trackerSection.classList.remove('hidden');
+    userBar.classList.remove('hidden');
+    dayNav.classList.remove('hidden');
+    userEmail.textContent = user.email || 'Logged in';
+
+    await loadTarget();
+
+    const entries = await loadDay(offset);
+
+    const total = entries.reduce((s, e) => s + Number(e.sugar), 0);
+    const remaining = Math.max(0, LIMIT - total);
+    const pct = Math.min(100, Math.round((total / LIMIT) * 100));
+
+    document.getElementById('ring-num').textContent = total.toFixed(1) + 'g';
+    document.getElementById('s-consumed').textContent = total.toFixed(1) + 'g';
+    document.getElementById('s-remaining').textContent = remaining.toFixed(1) + 'g';
+    document.getElementById('s-pct').textContent = pct + '%';
+    document.getElementById('target-sub').textContent = 'of ' + LIMIT + 'g';
+
+    const fill = document.getElementById('ring-fill');
+    const dashOffset = CIRC * (1 - Math.min(1, total / LIMIT));
+    fill.style.strokeDashoffset = dashOffset.toFixed(1);
+
+    const badge = document.getElementById('ring-status');
+    const consumed = document.getElementById('s-consumed');
+
+    if (total <= LIMIT * 0.75) {
+      fill.style.stroke = '#639922';
+      badge.className = 'ring-status status-ok';
+      badge.textContent = 'On track';
+      consumed.style.color = 'var(--green)';
+    } else if (total <= LIMIT) {
+      fill.style.stroke = '#BA7517';
+      badge.className = 'ring-status status-warn';
+      badge.textContent = 'Nearly there';
+      consumed.style.color = 'var(--amber)';
+    } else {
+      fill.style.stroke = '#E24B4A';
+      badge.className = 'ring-status status-over';
+      badge.textContent = 'Limit exceeded';
+      consumed.style.color = 'var(--red)';
+    }
+
+    const list = document.getElementById('log-list');
+
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="log-empty">No entries for this day.<br>Add something above.</div>';
+    } else {
+      list.innerHTML = [...entries].reverse().map(e => `
+        <div class="log-item">
+          <div style="flex:1;min-width:0;">
+            <div class="log-name">${escapeHTML(e.name)}</div>
+            <div class="log-time">${escapeHTML(e.time || '')}</div>
+          </div>
+          <div class="log-g">${parseFloat(e.sugar).toFixed(1)}g</div>
+          <button class="log-del" onclick="removeEntry(${e.id})" aria-label="Remove">&#x2715;</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  let toastTimer;
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(() => {
+      t.classList.remove('show');
+    }, 2200);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('fname').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        document.getElementById('fsugar').focus();
+      }
+    });
+
+    document.getElementById('fsugar').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        addEntry();
+      }
+    });
+
+    supabaseClient.auth.onAuthStateChange(() => {
+      render();
+    });
+
+    render();
+  });
+</script>
+
+</body>
+</html>
