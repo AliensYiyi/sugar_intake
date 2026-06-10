@@ -589,40 +589,55 @@
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  function getMalaysiaDateObject() {
+    return new Date(
+      new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Kuala_Lumpur"
+      })
+    );
+  }
+
   function dateKey(off) {
-    const d = new Date();
+    const d = getMalaysiaDateObject();
     d.setDate(d.getDate() + off);
-    return d.toISOString().slice(0, 10);
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   }
 
   function friendlyLabel(off) {
-    if (off === 0) return 'Today';
-    if (off === -1) return 'Yesterday';
+    if (off === 0) return "Today";
+    if (off === -1) return "Yesterday";
 
-    const d = new Date();
+    const d = getMalaysiaDateObject();
     d.setDate(d.getDate() + off);
 
-    return d.toLocaleDateString('en-MY', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
+    return d.toLocaleDateString("en-MY", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      timeZone: "Asia/Kuala_Lumpur"
     });
   }
 
   function nowTime() {
-    return new Date().toLocaleTimeString('en-MY', {
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date().toLocaleTimeString("en-MY", {
+      timeZone: "Asia/Kuala_Lumpur",
+      hour: "2-digit",
+      minute: "2-digit"
     });
   }
 
   function escapeHTML(text) {
     return String(text)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
   async function getCurrentUser() {
@@ -636,11 +651,11 @@
   }
 
   async function signUp() {
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
     if (!email || !password) {
-      showToast('Enter email and password');
+      showToast("Enter email and password");
       return;
     }
 
@@ -655,16 +670,16 @@
       return;
     }
 
-    showToast('Account created. You can login now.');
+    showToast("Account created. You can login now.");
     await render();
   }
 
   async function login() {
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
     if (!email || !password) {
-      showToast('Enter email and password');
+      showToast("Enter email and password");
       return;
     }
 
@@ -679,10 +694,10 @@
       return;
     }
 
-    document.getElementById('email').value = '';
-    document.getElementById('password').value = '';
+    document.getElementById("email").value = "";
+    document.getElementById("password").value = "";
 
-    showToast('Logged in');
+    showToast("Logged in");
     await render();
   }
 
@@ -691,7 +706,7 @@
 
     offset = 0;
 
-    showToast('Logged out');
+    showToast("Logged out");
     await render();
   }
 
@@ -703,15 +718,15 @@
     }
 
     const { data, error } = await supabaseClient
-      .from('sugar_entries')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('entry_date', dateKey(off))
-      .order('created_at', { ascending: true });
+      .from("sugar_entries")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("entry_date", dateKey(off))
+      .order("created_at", { ascending: true });
 
     if (error) {
       console.error(error);
-      showToast('Failed to load data');
+      showToast("Failed to load data");
       return [];
     }
 
@@ -726,24 +741,24 @@
   }
 
   async function addEntry() {
-    const name = document.getElementById('fname').value.trim();
-    const sugar = parseFloat(document.getElementById('fsugar').value);
+    const name = document.getElementById("fname").value.trim();
+    const sugar = parseFloat(document.getElementById("fsugar").value);
 
     if (!name || isNaN(sugar) || sugar < 0) {
-      showToast('Enter a name and amount');
+      showToast("Enter a name and amount");
       return;
     }
 
     const user = await getCurrentUser();
 
     if (!user) {
-      showToast('Please login first');
+      showToast("Please login first");
       await render();
       return;
     }
 
     const { error } = await supabaseClient
-      .from('sugar_entries')
+      .from("sugar_entries")
       .insert({
         user_id: user.id,
         entry_date: dateKey(offset),
@@ -754,28 +769,28 @@
 
     if (error) {
       console.error(error);
-      showToast('Failed to add');
+      showToast("Failed to add");
       return;
     }
 
-    document.getElementById('fname').value = '';
-    document.getElementById('fsugar').value = '';
+    document.getElementById("fname").value = "";
+    document.getElementById("fsugar").value = "";
 
     await render();
-    showToast('Added ' + name);
+    showToast("Added " + name);
   }
 
   async function quickAdd(name, sugar) {
     const user = await getCurrentUser();
 
     if (!user) {
-      showToast('Please login first');
+      showToast("Please login first");
       await render();
       return;
     }
 
     const { error } = await supabaseClient
-      .from('sugar_entries')
+      .from("sugar_entries")
       .insert({
         user_id: user.id,
         entry_date: dateKey(offset),
@@ -786,32 +801,32 @@
 
     if (error) {
       console.error(error);
-      showToast('Failed to add');
+      showToast("Failed to add");
       return;
     }
 
     await render();
-    showToast('Added ' + name);
+    showToast("Added " + name);
   }
 
   async function removeEntry(id) {
     const user = await getCurrentUser();
 
     if (!user) {
-      showToast('Please login first');
+      showToast("Please login first");
       await render();
       return;
     }
 
     const { error } = await supabaseClient
-      .from('sugar_entries')
+      .from("sugar_entries")
       .delete()
-      .eq('id', id)
-      .eq('user_id', user.id);
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) {
       console.error(error);
-      showToast('Failed to delete');
+      showToast("Failed to delete");
       return;
     }
 
@@ -819,25 +834,25 @@
   }
 
   async function clearDay() {
-    if (!confirm('Clear all entries for ' + friendlyLabel(offset) + '?')) return;
+    if (!confirm("Clear all entries for " + friendlyLabel(offset) + "?")) return;
 
     const user = await getCurrentUser();
 
     if (!user) {
-      showToast('Please login first');
+      showToast("Please login first");
       await render();
       return;
     }
 
     const { error } = await supabaseClient
-      .from('sugar_entries')
+      .from("sugar_entries")
       .delete()
-      .eq('user_id', user.id)
-      .eq('entry_date', dateKey(offset));
+      .eq("user_id", user.id)
+      .eq("entry_date", dateKey(offset));
 
     if (error) {
       console.error(error);
-      showToast('Failed to clear day');
+      showToast("Failed to clear day");
       return;
     }
 
@@ -847,28 +862,28 @@
   async function render() {
     const user = await getCurrentUser();
 
-    const authCard = document.getElementById('auth-card');
-    const trackerSection = document.getElementById('tracker-section');
-    const userBar = document.getElementById('user-bar');
-    const userEmail = document.getElementById('user-email');
-    const dayNav = document.getElementById('day-nav');
+    const authCard = document.getElementById("auth-card");
+    const trackerSection = document.getElementById("tracker-section");
+    const userBar = document.getElementById("user-bar");
+    const userEmail = document.getElementById("user-email");
+    const dayNav = document.getElementById("day-nav");
 
-    document.getElementById('day-label').textContent = friendlyLabel(offset);
-    document.getElementById('next-btn').disabled = offset >= 0;
+    document.getElementById("day-label").textContent = friendlyLabel(offset);
+    document.getElementById("next-btn").disabled = offset >= 0;
 
     if (!user) {
-      authCard.classList.remove('hidden');
-      trackerSection.classList.add('hidden');
-      userBar.classList.add('hidden');
-      dayNav.classList.add('hidden');
+      authCard.classList.remove("hidden");
+      trackerSection.classList.add("hidden");
+      userBar.classList.add("hidden");
+      dayNav.classList.add("hidden");
       return;
     }
 
-    authCard.classList.add('hidden');
-    trackerSection.classList.remove('hidden');
-    userBar.classList.remove('hidden');
-    dayNav.classList.remove('hidden');
-    userEmail.textContent = user.email || 'Logged in';
+    authCard.classList.add("hidden");
+    trackerSection.classList.remove("hidden");
+    userBar.classList.remove("hidden");
+    dayNav.classList.remove("hidden");
+    userEmail.textContent = user.email || "Logged in";
 
     const entries = await loadDay(offset);
 
@@ -876,76 +891,90 @@
     const remaining = Math.max(0, LIMIT - total);
     const pct = Math.min(100, Math.round((total / LIMIT) * 100));
 
-    document.getElementById('ring-num').textContent = total.toFixed(1) + 'g';
-    document.getElementById('s-consumed').textContent = total.toFixed(1) + 'g';
-    document.getElementById('s-remaining').textContent = remaining.toFixed(1) + 'g';
-    document.getElementById('s-pct').textContent = pct + '%';
+    document.getElementById("ring-num").textContent = total.toFixed(1) + "g";
+    document.getElementById("s-consumed").textContent = total.toFixed(1) + "g";
+    document.getElementById("s-remaining").textContent = remaining.toFixed(1) + "g";
+    document.getElementById("s-pct").textContent = pct + "%";
 
-    const fill = document.getElementById('ring-fill');
+    const fill = document.getElementById("ring-fill");
     const dashOffset = CIRC * (1 - Math.min(1, total / LIMIT));
     fill.style.strokeDashoffset = dashOffset.toFixed(1);
 
-    const badge = document.getElementById('ring-status');
-    const consumed = document.getElementById('s-consumed');
+    const badge = document.getElementById("ring-status");
+    const consumed = document.getElementById("s-consumed");
 
     if (total <= LIMIT * 0.75) {
-      fill.style.stroke = '#639922';
-      badge.className = 'ring-status status-ok';
-      badge.textContent = 'On track';
-      consumed.style.color = 'var(--green)';
+      fill.style.stroke = "#639922";
+      badge.className = "ring-status status-ok";
+      badge.textContent = "On track";
+      consumed.style.color = "var(--green)";
     } else if (total <= LIMIT) {
-      fill.style.stroke = '#BA7517';
-      badge.className = 'ring-status status-warn';
-      badge.textContent = 'Nearly there';
-      consumed.style.color = 'var(--amber)';
+      fill.style.stroke = "#BA7517";
+      badge.className = "ring-status status-warn";
+      badge.textContent = "Nearly there";
+      consumed.style.color = "var(--amber)";
     } else {
-      fill.style.stroke = '#E24B4A';
-      badge.className = 'ring-status status-over';
-      badge.textContent = 'Limit exceeded';
-      consumed.style.color = 'var(--red)';
+      fill.style.stroke = "#E24B4A";
+      badge.className = "ring-status status-over";
+      badge.textContent = "Limit exceeded";
+      consumed.style.color = "var(--red)";
     }
 
-    const list = document.getElementById('log-list');
+    const list = document.getElementById("log-list");
 
     if (entries.length === 0) {
-      list.innerHTML = '<div class="log-empty">No entries for this day.<br>Add something above.</div>';
+      list.innerHTML = `
+        <div class="log-empty">
+          No entries for this day.<br>
+          Add something above.
+        </div>
+      `;
     } else {
       list.innerHTML = [...entries].reverse().map(e => `
         <div class="log-item">
           <div style="flex:1;min-width:0;">
             <div class="log-name">${escapeHTML(e.name)}</div>
-            <div class="log-time">${escapeHTML(e.time || '')}</div>
+            <div class="log-time">${escapeHTML(e.time || "")}</div>
           </div>
+
           <div class="log-g">${parseFloat(e.sugar).toFixed(1)}g</div>
-          <button class="log-del" onclick="removeEntry(${e.id})" aria-label="Remove">&#x2715;</button>
+
+          <button 
+            class="log-del" 
+            onclick="removeEntry(${e.id})" 
+            aria-label="Remove"
+          >
+            &#x2715;
+          </button>
         </div>
-      `).join('');
+      `).join("");
     }
   }
 
   let toastTimer;
 
   function showToast(msg) {
-    const t = document.getElementById('toast');
+    const t = document.getElementById("toast");
+
     t.textContent = msg;
-    t.classList.add('show');
+    t.classList.add("show");
 
     clearTimeout(toastTimer);
 
     toastTimer = setTimeout(() => {
-      t.classList.remove('show');
+      t.classList.remove("show");
     }, 2200);
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('fname').addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        document.getElementById('fsugar').focus();
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("fname").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        document.getElementById("fsugar").focus();
       }
     });
 
-    document.getElementById('fsugar').addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
+    document.getElementById("fsugar").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
         addEntry();
       }
     });
